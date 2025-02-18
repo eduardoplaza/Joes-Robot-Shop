@@ -1,9 +1,9 @@
 
 <div class="product">
   <div class="product-details">
-    <img [src]="getImageUrl(product)" [alt]="product.name" />
+    <img [src]="getImageUrl(product)" alt="{{product.name}}" />
     <div class="product-info">
-      <div class="name red">{{ product.name}}</div>
+      <div class="name red">{{ product.name}} &nbsp;&nbsp;&nbsp;&nbsp; <span *ngIf="product.units !== undefined && product.units !== 0">({{product.units}})</span>   </div>
       <div class="description">{{product.description}}</div>
       <div class="category">Part Type:{{product.category}} </div>
     </div>
@@ -12,10 +12,10 @@
     <div style="font-weight: bolder;"
     [ngStyle]="{ 'color': product.discount > 0 ? 'green' : '' }"
     [ngClass]="{strikethrough: product.discount > 0}">
-      {{product.price | currency }}
+      {{ getPrice(product)| currency }}
     </div>
     <div class="discount" *ngIf="product.discount > 0">
-      {{ ( product.price * (1  - product.discount) ) | currency }}
+      {{ getPriceWithDiscount(product) | currency }}
     </div>
     <button class="cta" (click)="buyButtonClicked(product)">Buy</button>
   </div>

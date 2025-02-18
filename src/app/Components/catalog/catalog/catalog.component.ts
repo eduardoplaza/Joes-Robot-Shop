@@ -1,19 +1,22 @@
 import { Component, inject } from '@angular/core';
-import { CartService } from '../../../../Services/cart/cart.service';
+import { CartService } from '../../../Services/cart/cart.service';
 import { IProduct } from 'src/app/Models/product.model';
-import { ProductService } from '../../../../Services/products/product.service';
-import { Router, Route, ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
-import { flush } from '@angular/core/testing';
+import { ProductService } from '../../../Services/products/product.service';
+import { Router, ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ProductDetailsComponent } from '../../shared/product-details/product-details.component';
 
 @Component({
   selector: 'bot-catalog',
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.scss']
+  styleUrls: ['./catalog.component.scss'],
+  standalone: true,
+  imports:[CommonModule, RouterLink, RouterLinkActive, ProductDetailsComponent ]
 })
+
 export class CatalogComponent {
   products:  any;
-  filter: string = '';
+  filter: any;
   product: IProduct[];
   private cartSrv : CartService = inject(CartService);
   private productSrv : ProductService = inject(ProductService);
@@ -29,12 +32,19 @@ export class CatalogComponent {
       (products) => {this.products = products;}
     );
     this.filter = this.route.snapshot.params['filter'];
+    this.route.params.subscribe((params) => {
+    this.filter = params['filter'] ?? '';});
+
+    //  this.route.paramMap.subscribe(
+    //     (parmap) => this.filter = parmap.get("filter")?.toString()
+    // );
+      console.debug("filter: " +this.filter);
   }
 
-  ngAfterViewInit(): void {
-    this.getFilterProduct();
-    console.warn(this.filter);
-  }
+  // ngAfterViewInit(): void {
+  //   this.getFilterProduct();
+  //   console.warn(this.filter);
+  // }
 
   addToCart(product: IProduct)
   {

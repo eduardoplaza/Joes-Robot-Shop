@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { IProduct } from 'src/app/Models/product.model';
 
 
@@ -20,12 +20,22 @@ export class CartService {
 
   add(product: IProduct)
   {
-    const newCart = [...this.cart.getValue(),product];
-    this.cart.next(newCart);
-    this.http.post('/api/cart', this.cart).subscribe(()=>{
-      console.log('product ${product.name} added to cart');
-    });
-
+    var newCart = null;
+    const newProduct = this.find(product);
+    if(newProduct !== undefined && newProduct !== null)
+    {
+      newCart = this.cart.getValue().filter( p => p.id !== product.id);
+      newProduct.units =  newProduct.units === undefined ? 2 : ++newProduct.units;
+      this.cart.next([...newCart,newProduct]);
+    }
+    else{
+      this.cart.next([...this.cart.getValue(),product]);
+    }
+    this.http.post<IProduct[]>('/api/cart', this.cart)
+    .pipe( map( (cart: IProduct[]) => {
+      this.cart.next(cart);
+      return cart;
+    }));
   }
 
   getCart() : Observable<IProduct[]>
@@ -35,9 +45,21 @@ export class CartService {
 
   remove(product: IProduct){
     let newCart =this.cart.getValue().filter((i) => i !== product);
+
     this.cart.next(newCart);
-    this.http.post('/api/cart', this.cart).subscribe(()=>{
-      console.log('removed ${product.name} from cart');
-    });
+    this.http.post<IProduct[]>('/api/cart', this.cart)
+    .pipe( map( (cart: IProduct[]) => {
+      this.cart.next(cart);
+      return cart;
+    }));
+  }
+
+  find(product: IProduct){
+    if(product !== null)
+    {
+      var cartFind =this.cart.getValue().filter((i) => i.id === product.id);
+      return cartFind[0];
+    }
+    return null;
   }
 }

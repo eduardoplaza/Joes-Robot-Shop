@@ -188,8 +188,14 @@ function fetchProductsFromDatabase() {
 }
 
 app.post('/api/cart', (req, res) =>
-  setTimeout(() => res.status(201).send(), 800)
+  setTimeout(() => res.status(200).send(), 800)
 );
+
+app.get("/api/cart", (req, res) => {
+  let productsArray = fetchProductsFromDatabase();
+  res.send([]);
+});
+
 
 
 app.listen(8081, () => console.log("API Server listening on port 8081!"));
